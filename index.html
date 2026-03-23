@@ -1468,11 +1468,12 @@
     /* =============================================
        CONFIGURATION
        =============================================
-       Kit Form UID: d5c3954d28
-       Form URL: https://dentpulse.kit.com/d5c3954d28
+       Kit Form ID: 9238364
+       Kit Public API Key: FSLfxMJ62Y1uixYP5PhL_Q (safe for frontend)
        Tagging: Configure inside Kit (Form > Settings > Automations)
     */
-    const KIT_FORM_UID = 'd5c3954d28';
+    const KIT_API_KEY = 'FSLfxMJ62Y1uixYP5PhL_Q';
+    const KIT_FORM_ID = '9238364';
     const MONZO_PAYMENT_URL = 'https://monzo.com/pay/r/accotally-limited_iNvZP3K4M0uV1D';
 
     /* =============================================
@@ -1546,11 +1547,10 @@
     })();
 
     /* =============================================
-       FORM SUBMISSION -> KIT -> MONZO REDIRECT
+       FORM SUBMISSION -> KIT V3 API -> MONZO REDIRECT
        =============================================
-       Submits to Kit via a hidden iframe (no API key needed).
-       Kit's form endpoint accepts cross-origin form POSTs.
-       On submission, redirects to Monzo payment page.
+       Uses Kit's V3 public API (CORS-enabled, safe for frontend).
+       On success, redirects to Monzo payment page.
        ============================================= */
     (function() {
       const form = document.getElementById('registration-form');
@@ -1571,7 +1571,7 @@
           : 'Register &amp; Continue to Payment &rarr;';
       }
 
-      form.addEventListener('submit', function(e) {
+      form.addEventListener('submit', async function(e) {
         e.preventDefault();
         hideError();
 
@@ -1594,47 +1594,38 @@
 
         setLoading(true);
 
-        // Create hidden iframe to receive Kit's form response
-        var iframeName = 'kit-submit-' + Date.now();
-        var iframe = document.createElement('iframe');
-        iframe.name = iframeName;
-        iframe.style.display = 'none';
-        document.body.appendChild(iframe);
+        try {
+          const response = await fetch(
+            'https://api.convertkit.com/v3/forms/' + KIT_FORM_ID + '/subscribe',
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                api_key: KIT_API_KEY,
+                email: email,
+                first_name: firstName,
+                fields: {
+                  last_name: lastName,
+                  practice_name: practiceName,
+                  whatsapp_number: whatsapp,
+                  attendance_type: attendance
+                }
+              })
+            }
+          );
 
-        // Create hidden form targeting the iframe
-        var kitForm = document.createElement('form');
-        kitForm.method = 'POST';
-        kitForm.action = 'https://app.kit.com/forms/' + KIT_FORM_UID + '/subscriptions';
-        kitForm.target = iframeName;
-        kitForm.style.display = 'none';
+          if (!response.ok) {
+            throw new Error('Kit subscription failed: ' + response.status);
+          }
 
-        // Add form fields that Kit expects
-        var fields = {
-          'email_address': email,
-          'first_name': firstName,
-          'fields[last_name]': lastName,
-          'fields[practice_name]': practiceName,
-          'fields[whatsapp_number]': whatsapp,
-          'fields[attendance_type]': attendance
-        };
-
-        for (var key in fields) {
-          var input = document.createElement('input');
-          input.type = 'hidden';
-          input.name = key;
-          input.value = fields[key];
-          kitForm.appendChild(input);
-        }
-
-        document.body.appendChild(kitForm);
-
-        // Submit to Kit via the hidden iframe
-        kitForm.submit();
-
-        // Redirect to Monzo after a brief delay to allow Kit submission
-        setTimeout(function() {
+          // Success - redirect to Monzo payment
           window.location.href = MONZO_PAYMENT_URL;
-        }, 1500);
+
+        } catch (err) {
+          console.error('Form submission error:', err);
+          // Still redirect to payment even if Kit fails
+          window.location.href = MONZO_PAYMENT_URL;
+        }
       });
     })();
   </script>
