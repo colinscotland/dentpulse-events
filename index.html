@@ -75,11 +75,32 @@
     .reveal {
       opacity: 0;
       transform: translateY(30px);
-      transition: opacity 0.7s ease, transform 0.7s ease;
+      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .reveal.visible {
       opacity: 1;
       transform: translateY(0);
+    }
+
+    /* Stagger animation for grid children */
+    .reveal.visible .problem-card,
+    .reveal.visible .agenda-module,
+    .reveal.visible .proof-card,
+    .reveal.visible .who-card {
+      animation: fadeSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .reveal.visible :nth-child(1) { animation-delay: 0s; }
+    .reveal.visible :nth-child(2) { animation-delay: 0.1s; }
+    .reveal.visible :nth-child(3) { animation-delay: 0.2s; }
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Floating animation for hero badge */
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
     }
 
     /* ============================================
@@ -116,7 +137,7 @@
       transition: all 0.3s ease;
       border: none; cursor: pointer;
     }
-    .nav-cta:hover { background: var(--blue-dark); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+    .nav-cta:hover { background: var(--blue-dark); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(6,0,151,0.25); }
 
     /* ============================================
        HERO SECTION
@@ -126,6 +147,13 @@
       padding: 140px 0 80px;
       background: linear-gradient(135deg, #f9f6fe 0%, #eee6ff 40%, #e8f0ff 100%);
       overflow: hidden;
+      background-size: 200% 200%;
+      animation: heroGradient 12s ease infinite;
+    }
+    @keyframes heroGradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
     .hero::before {
       content: '';
@@ -152,6 +180,9 @@
       color: var(--blue);
       margin-bottom: 24px;
       box-shadow: var(--shadow-sm);
+    }
+    .hero-badge {
+      animation: float 3s ease-in-out infinite;
     }
     .hero-badge .live-dot {
       width: 8px; height: 8px;
@@ -216,7 +247,29 @@
       transform: translateY(-2px);
       box-shadow: 0 8px 30px rgba(255,205,87,0.5);
     }
-    .btn-primary svg { width: 20px; height: 20px; }
+    .btn-primary:hover svg {
+      transform: translateX(4px);
+    }
+    .btn-primary svg { width: 20px; height: 20px; transition: transform 0.3s ease; }
+
+    /* Shimmer effect on primary buttons */
+    .btn-primary {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-primary::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: none;
+      animation: shimmer 3s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      0% { left: -100%; }
+      50%, 100% { left: 150%; }
+    }
     .hero-price {
       font-size: 0.95rem; color: var(--gray);
     }
@@ -246,7 +299,10 @@
     .countdown-bar {
       margin-top: 48px;
       padding: 20px 28px;
-      background: var(--white);
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(6,0,151,0.08);
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow-md);
       display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
@@ -275,6 +331,11 @@
     .countdown-sep {
       font-size: 1.4rem; font-weight: 700; color: var(--blue);
       opacity: 0.3; align-self: flex-start; margin-top: 2px;
+      animation: blink-sep 1s ease-in-out infinite;
+    }
+    @keyframes blink-sep {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.8; }
     }
 
     /* ============================================
@@ -352,6 +413,11 @@
     }
     .problem-chain-neq {
       font-size: 1.3rem; font-weight: 800; color: #ef4444;
+      animation: pulse-neq 2s ease-in-out infinite;
+    }
+    @keyframes pulse-neq {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.15); }
     }
     .problem-grid {
       display: grid;
@@ -364,6 +430,12 @@
       background: var(--lavender);
       border-radius: var(--radius-lg);
       border: 1px solid rgba(6,0,151,0.06);
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    .problem-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+      border-color: rgba(6,0,151,0.12);
     }
     .problem-card-icon {
       width: 44px; height: 44px;
@@ -399,7 +471,11 @@
       box-shadow: var(--shadow-md);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-    .speaker-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+    .speaker-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-lg);
+      border: 1px solid rgba(193,15,255,0.15);
+    }
     .speaker-header {
       padding: 32px 28px 0;
       display: flex; align-items: flex-start; gap: 20px;
@@ -504,6 +580,10 @@
       color: var(--white);
       line-height: 1;
       margin-bottom: 8px;
+      background: linear-gradient(135deg, var(--white), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
     .stat-label {
       font-size: 0.9rem; color: rgba(255,255,255,0.75);
@@ -565,6 +645,11 @@
       background: var(--white);
       border-radius: var(--radius-xl);
       box-shadow: var(--shadow-sm);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .proof-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
     }
     .proof-quote {
       font-size: 0.95rem; color: var(--slate);
@@ -655,7 +740,8 @@
       background: var(--white);
       border-radius: var(--radius-xl);
       padding: 40px;
-      box-shadow: var(--shadow-xl);
+      box-shadow: var(--shadow-xl), 0 0 80px rgba(193,15,255,0.06);
+      border: 1px solid rgba(6,0,151,0.04);
     }
     .form-card h3 {
       font-size: 1.3rem; font-weight: 700;
@@ -774,7 +860,7 @@
       color: var(--slate);
       transition: color 0.2s ease;
     }
-    .faq-question:hover { color: var(--blue); }
+    .faq-question:hover { color: var(--blue); padding-left: 4px; }
     .faq-question svg {
       width: 20px; height: 20px; flex-shrink: 0;
       transition: transform 0.3s ease;
@@ -790,7 +876,7 @@
       transition: max-height 0.4s ease, padding 0.4s ease;
     }
     .faq-item.active .faq-answer {
-      max-height: 400px;
+      max-height: 600px;
       padding-bottom: 20px;
     }
     .faq-answer p {
@@ -1361,71 +1447,121 @@
       <div class="faq-list">
         <div class="faq-item reveal">
           <button class="faq-question" aria-expanded="false">
+            Is this just a tax workshop?
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer">
+            <p>No. Tax is one layer. This session focuses on the full conversion chain inside a dental practice: Revenue &rarr; Profit &rarr; Cash &rarr; What You Keep. Tax strategy is aligned with personal income strategy &ndash; not treated in isolation.</p>
+          </div>
+        </div>
+
+        <div class="faq-item reveal">
+          <button class="faq-question" aria-expanded="false">
+            Is this relevant for NHS, private, or mixed dental practices?
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer">
+            <p>Yes. The Profit to Pocket Model applies across NHS, private, or mixed dental practices. The mechanics of extraction and clarity remain the same.</p>
+          </div>
+        </div>
+
+        <div class="faq-item reveal">
+          <button class="faq-question" aria-expanded="false">
+            Do I need my accountant present?
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer">
+            <p>No. You'll gain clarity on structure and decisions as a dental practice owner. You can then brief your accountant strategically &ndash; rather than asking them what to do.</p>
+          </div>
+        </div>
+
+        <div class="faq-item reveal">
+          <button class="faq-question" aria-expanded="false">
+            Will this apply if I own multiple dental practices?
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer">
+            <p>Yes. In fact, complexity increases leakage risk. The framework becomes even more valuable in multi-entity dental environments.</p>
+          </div>
+        </div>
+
+        <div class="faq-item reveal">
+          <button class="faq-question" aria-expanded="false">
+            Can I bring my practice manager?
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer">
+            <p>Yes, recommended to bring your practice manager. Each seat is &pound;29/person. It's optional though.</p>
+          </div>
+        </div>
+
+        <div class="faq-item reveal">
+          <button class="faq-question" aria-expanded="false">
+            What if my financial year has already started?
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer">
+            <p>It does not matter when your financial year end started. What matters is coincide your profit design from April to March. Early-year adjustments create leverage. Waiting until Q4 reduces options.</p>
+          </div>
+        </div>
+
+        <div class="faq-item reveal">
+          <button class="faq-question" aria-expanded="false">
+            What happens after I register?
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer">
+            <p>You'll receive a confirmation email and WhatsApp notification, pre-work (optional but recommended), and access instructions.</p>
+          </div>
+        </div>
+
+        <div class="faq-item reveal">
+          <button class="faq-question" aria-expanded="false">
+            Is this just theory, or will I get actionable steps?
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer">
+            <p>You'll leave with a prioritised implementation plan specific to your practice structure and current position.</p>
+          </div>
+        </div>
+
+        <div class="faq-item reveal">
+          <button class="faq-question" aria-expanded="false">
+            Why &pound;29 investment for Profit to Pocket Model Workshop?
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer">
+            <p>We want ambitious, growth-minded dental practice owners who are serious about implementation, not tyre-kickers. &pound;29 filters for commitment without creating a barrier.</p>
+          </div>
+        </div>
+
+        <div class="faq-item reveal">
+          <button class="faq-question" aria-expanded="false">
+            What should you bring on the day?
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer">
+            <p>You should bring a laptop and last year's filed detailed accounts, a copy of your personal tax return, and also ideally access to your online accounting software and PMS.</p>
+          </div>
+        </div>
+
+        <div class="faq-item reveal">
+          <button class="faq-question" aria-expanded="false">
             What time does the workshop start and finish?
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           <div class="faq-answer">
-            <p>Registration opens at 9:30am. The workshop runs from 10:00am to 3:00pm UK time. Whether you're joining in person or online, you'll have the full five hours of structured content and live Q&amp;A.</p>
+            <p>Registration starts at 9:30am. Workshop starts at 10am and finishes at 3pm.</p>
           </div>
         </div>
 
         <div class="faq-item reveal">
           <button class="faq-question" aria-expanded="false">
-            Can I attend online if I can't be there in person?
+            Important Information
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           <div class="faq-answer">
-            <p>Absolutely. This is a hybrid event. You can attend in person at our venue or join online via a live stream. Both experiences include full access to the workshop content, Q&amp;A, and the recording afterwards.</p>
-          </div>
-        </div>
-
-        <div class="faq-item reveal">
-          <button class="faq-question" aria-expanded="false">
-            Will there be a recording?
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div class="faq-answer">
-            <p>Yes. Every registered attendee receives access to the full workshop recording. That said, the live experience is where the real value is. You'll get to ask questions, work on your numbers in real time, and engage with the speakers directly.</p>
-          </div>
-        </div>
-
-        <div class="faq-item reveal">
-          <button class="faq-question" aria-expanded="false">
-            Is this suitable for new practice owners?
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div class="faq-answer">
-            <p>Whether you've owned your practice for 6 months or 20 years, this workshop will give you clarity. New owners often benefit the most because they set up good financial habits from the start, rather than trying to fix problems years later.</p>
-          </div>
-        </div>
-
-        <div class="faq-item reveal">
-          <button class="faq-question" aria-expanded="false">
-            What if I'm not a DentPulse client?
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div class="faq-answer">
-            <p>This workshop is open to everyone. You don't need to be a DentPulse client to attend or benefit. The frameworks and strategies we cover are universal for UK dental practice owners.</p>
-          </div>
-        </div>
-
-        <div class="faq-item reveal">
-          <button class="faq-question" aria-expanded="false">
-            How do I pay?
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div class="faq-answer">
-            <p>After completing the registration form, you'll be redirected to a secure Monzo payment page where you can pay &pound;29 instantly. Once payment is confirmed, you'll receive an email with your joining details.</p>
-          </div>
-        </div>
-
-        <div class="faq-item reveal">
-          <button class="faq-question" aria-expanded="false">
-            Is there a refund policy?
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div class="faq-answer">
-            <p>If you can't attend, let us know at least 48 hours before the event and we'll issue a full refund. You'll also have access to the recording, so even if something comes up on the day, you won't lose out.</p>
+            <p>This workshop provides general educational guidance on financial planning, tax strategy, and business management for dental practice owners. It does not constitute personalised financial, tax, or legal advice. Outcomes described (including percentage improvements to profit, cash flow, or tax exposure) are illustrative examples based on prior client work and are not guarantees of future results. Individual results will vary based on practice structure, existing financials, and implementation decisions. Participants are encouraged to consult with their own qualified accountant, financial adviser, or legal professional before making decisions affecting their practice. By registering, you acknowledge that DentPulse and its hosts are not liable for decisions made based on workshop content.</p>
           </div>
         </div>
       </div>
@@ -1454,7 +1590,6 @@
   <footer class="footer">
     <div class="container">
       <p>&copy; 2026 DentPulse. All rights reserved. UK Company Number 16373296.</p>
-      <p>Unit 1, 396 Hook Road, Chessington, London, KT9 1NA</p>
       <p style="margin-top:12px; font-size:0.75rem; opacity:0.6;">
         This workshop provides general financial education for dental practice owners. It does not constitute individual financial, tax, or legal advice. Please consult your own accountant or financial adviser for advice specific to your circumstances.
       </p>
